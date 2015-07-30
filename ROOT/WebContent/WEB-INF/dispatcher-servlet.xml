@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:c="http://www.springframework.org/schema/c"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.1.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.1.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.1.xsd">
+	<context:component-scan base-package="org.it.main.controller"/>
+	<context:component-scan base-package="org.it.member.controller"/>
+	<context:component-scan base-package="org.it.member.model"/>
+	<context:component-scan base-package="org.it.guest.model"/>
+	<context:component-scan base-package="org.it.guest.controller"/>
+	
+	<!-- multipart형식을 처리할 rersolver -->
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"/>
+	
+	<bean id="viewResolveDefault" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/view/"/>
+		<property name="suffix" value=".jsp"/>
+		<property name="order" value="99"/>
+	</bean> 
+	
+	<bean id="bean" class="org.springframework.web.servlet.view.BeanNameViewResolver" p:order="0"/>
+	
+	<bean id="tiles" class="org.springframework.web.servlet.view.tiles3.TilesViewResolver" p:order="1"></bean>
+	<bean id="tilesConfig" class="org.springframework.web.servlet.view.tiles3.TilesConfigurer">
+		<property name="definitions">
+			<value>/WEB-INF/tiles-config.xml</value>
+		</property>
+	</bean>
+	
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" p:user="saan" p:password="zzang" 
+		p:jdbcUrl="jdbc:oracle:thin:@192.168.10.56:1521:xe" p:driverClass="oracle.jdbc.driver.OracleDriver"/>
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager" p:dataSource-ref="dataSource"/>
+	
+	<!-- AOP를 이용한 트랜잭션 처리-->
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="*e" rollback-for="Exception"/>  <!-- sql관련 exception 외에도 rollback 되게.. rollback-for 없으면 sql관련 exception만 트랜잭션처리됨-->
+		</tx:attributes>
+	</tx:advice>
+	<aop:config>
+		<aop:pointcut expression="within(org.it..*)" id="all"/>
+		<aop:advisor advice-ref="txAdvice" pointcut-ref="all"/>
+	</aop:config>
+	
+	<!-- spring 으로부터 SqlSessionFactory 주입받기 -->
+	<bean id="factory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"/>
+		<property name="mapperLocations" value="classpath:/*-mapper.xml">
+			<!-- 혹은 이렇게.. 여러개 mapper파일 등록할때..
+			<list>
+				<value>classpath:/simple-mapper.xml</value>
+				<value>classpath:/guest-mapper.xml</value>
+			</list>
+			 -->
+		</property>
+	</bean> 
+	
+	<bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg name="sqlSessionFactory" ref="factory"/>
+	</bean>
+	
+	<!-- 인터페이스로부터 실제 구현 클래스를 만들어서 생성해낼 수 있는 객체 -->
+	<bean id="memberDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface" value="org.it.member.model.MemberDao"/>
+		<property name="sqlSessionFactory" ref="factory"/>
+	</bean>
+	<bean id="memberLogDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface" value="org.it.member.model.MemberLogDao"/>
+		<property name="sqlSessionFactory" ref="factory"/>
+	</bean>
+	<bean id="guestDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface" value="org.it.guest.model.GuestDao"/>
+		<property name="sqlSessionFactory" ref="factory"/>
+	</bean>
+	<bean id="boardDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface" value="org.it.board.model.BoardDao"/>
+		<property name="sqlSessionFactory" ref="factory"/>
+	</bean>
+
+</beans>
