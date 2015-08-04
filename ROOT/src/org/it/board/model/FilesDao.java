@@ -21,7 +21,7 @@ public class FilesDao {
 		return sess.selectList("org.it.board.model.FilesDao.readSome", num);
 	}
 	
-	public List<FilesDto> readOne(String fnum) {
+	public FilesDto readOne(String fnum) {
 		return sess.selectOne("org.it.board.model.FilesDao.readOne", fnum);
 	}
 	

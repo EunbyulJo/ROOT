@@ -15,6 +15,8 @@
 	<context:component-scan base-package="org.it.member.model"/>
 	<context:component-scan base-package="org.it.guest.model"/>
 	<context:component-scan base-package="org.it.guest.controller"/>
+	<context:component-scan base-package="org.it.board.model"/>
+	<context:component-scan base-package="org.it.board.controller"/>
 	
 	<!-- multipart형식을 처리할 rersolver -->
 	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"/>

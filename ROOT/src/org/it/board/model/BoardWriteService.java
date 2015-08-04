@@ -39,7 +39,7 @@ public class BoardWriteService {
 		if(mpf.isEmpty()) {
 			rst = bdao.createOne(bdto);
 		}else {
-			String realfile = mpf.getName();
+			String realfile = mpf.getOriginalFilename();
 			mpf.getSize();   // 파일크기(byte로.. type은 long)
 			String tempfile = UUID.randomUUID().toString(); // 16의 32승개의 경우의 수를 갖는 숫자들이 나옴.. 이걸 tempfile로 사용
 			String path = application.getRealPath("/files");

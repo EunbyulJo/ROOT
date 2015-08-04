@@ -14,10 +14,10 @@
  	<div style="height: 50">
  		<tiles:insertAttribute name="nav"/>
  	</div>
- 	<div style="height: 600">
+ 	<div align="center">
  		<tiles:insertAttribute name="body"/>
  	</div>
- 	<div style="height: 80">
+ 	<div>
  		<tiles:insertAttribute name="footer"/>
  	</div>
  </body>
